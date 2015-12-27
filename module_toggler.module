@@ -1,0 +1,88 @@
+<?php
+
+/**
+ * @file
+ * This is the file description for the Module Toggler module.
+ *
+ *
+ * @author dafeder
+ */
+
+/**
+ * Implements hook_permission().
+ *
+ * @todo Add per-group permissions.
+ */
+function module_toggler_permission() {
+  return array(
+    'use module toggler' =>  array(
+      'title' => t('Use Module Toggler'),
+      'description' => t('Enable and disable modules exposed to Module Toggler. Use with caution.'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function module_toggler_menu() {
+  $items['admin/modules/toggle'] = array(
+    'title' => 'Toggle Modules',
+    'page callback' => 'module_toggler_list_page',
+    'access arguments' => array('use module toggler'),
+    'file' => 'module_toggler.admin.inc',
+  );
+
+  $items['admin/modules/toggle/enable/%/confirm'] = array(
+    'title' => 'Toggle Modules',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('module_toggler_enable_confirm'),
+    'access arguments' => array('use module toggler'),
+    'file' => 'module_toggler.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function module_toggler_theme($existing, $type, $theme, $path) {
+  return array(
+    'module_toggler_list' => array(
+      'file' => 'module_toggler.theme.inc',
+      'variables' => array('module_groups' => array()),
+    ),
+    'module_toggler_module_links' => array(
+      'file' => 'module_toggler.theme.inc',
+      'variables' => array('module' => NULL, 'module_config' => NULL),
+    ),
+  );
+}
+
+/**
+ * For modules in groups array, fill in missing values from module defaults.
+ *
+ * @param &$groups
+ *   Array of groups and modules. See ()
+ */
+function module_toggler_get_module_groups() {
+  $groups = module_invoke_all('module_toggler');
+  $list = system_rebuild_module_data();
+  $info_elements = array('name', 'description');
+
+  foreach($groups as $group => $group_config) {
+    foreach ($group_config['modules'] as $module => $module_config) {
+      $module_info = $list[$module]->info;
+      foreach($info_elements as $info_element) {
+        if (!in_array($info_element, array_keys($module_config))) {
+          $groups[$group]['modules'][$module][$info_element] = $module_info[$info_element];
+        }
+      }
+      // Add module status element
+      $groups[$group]['modules'][$module]['status'] = $list[$module]->status;
+    }
+  }
+
+  return $groups;
+}

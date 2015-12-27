@@ -1,2 +1,4 @@
 name = Module Toggler
-description = Make a subset of modules available to toggle on/off to non-admin users.
+description = "Make a subset of modules available to toggle on/off to non-admin users."
+core = 7.x
+package = Administration
