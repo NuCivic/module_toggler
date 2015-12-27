@@ -4,8 +4,8 @@
  * @file
  * This is the file description for the Module Toggler module.
  *
- *
  * @author dafeder
+ *
  */
 
 /**
@@ -86,3 +86,5 @@ function module_toggler_get_module_groups() {
 
   return $groups;
 }
+
+/* vim: set filetype=php: */
