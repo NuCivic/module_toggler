@@ -34,11 +34,6 @@ function theme_module_toggler_list($variables) {
       $output .= '<header><h3>' . $module_config['name'] . '</h3></header>';
       $output .= '<p>' . $module_config['description'] . '</p>';
 
-      // More info link
-      if (isset($module_config['more_info'])) {
-        $output .= l(t('More information'), $module_config['more_info'], array('attributes' => array('class' => array('more-info'))));
-      }
-
       // "Action" links
       $output .= theme('module_toggler_module_links', array(
         'group' => $group,
@@ -66,29 +61,40 @@ function theme_module_toggler_module_links($variables) {
   $links = array();
   $module_t_params = array('%module' => $module_config['name']);
 
+  $output = '<div class="btn-group">';
+
   if ($module_config['status']) {
-    $links = array();
-    $links[] = array(
-      'title' => t('Disable'),
-      'href' => "admin/modules/toggle/$group/$module/disable/confirm",
-      'attributes' => array('title' => t('Disable %module', $module_t_params)),
-    );
+    $output .= l(t('Disable'), "admin/modules/toggle/$group/$module/disable/confirm", array(
+      'attributes' => array(
+        'title' => t('Disable %module', $module_t_params),
+        'class' => array('btn', 'btn-primary'),
+      ),
+    ));
+
     if (isset($module_config['configure'])) {
-      $links[] = array(
-        'title' => t('Configure'),
-        'href' => $module_config['configure'],
-        'attributes' => array('title' => t('Configure %module', $module_t_params)),
-      );
+      $output .= l(t('Configure'), $module_config['configure'], array(
+        'attributes' => array(
+          'title' => t('Configure %module', $module_t_params),
+          'class' => array('btn', 'btn-default'),
+        ),
+      ));
     }
   }
   else {
-    $links = array(
-      array(
-        'title' => t('Enable'),
-        'href' => "admin/modules/toggle/$group/$module/enable/confirm",
-        'attributes' => array('title' => t('Enable %module', $module_t_params)),
-      )
-    );
+    $output .= l(t('Enable'), "admin/modules/toggle/$group/$module/enable/confirm", array(
+      'attributes' => array(
+        'title' => t('Enable %module', $module_t_params),
+        'class' => array('btn', 'btn-primary'),
+      ),
+    ));
   }
-  return theme('links', array('links' => $links));
+
+  // More info link
+  if (isset($module_config['more_info'])) {
+    $output .= l(t('More information'), $module_config['more_info'], array('attributes' => array('class' => array('btn', 'btn-default'))));
+  }
+
+
+  $output .= '</div>';
+  return $output;
 }
