@@ -33,7 +33,17 @@ function theme_module_toggler_list($variables) {
       // Module name and description
       $output .= '<header><h3>' . $module_config['name'] . '</h3></header>';
       $output .= '<p>' . $module_config['description'] . '</p>';
-      $output .= theme('module_toggler_module_links', array('module' => $module, 'module_config' => $module_config));
+
+      // More info link
+      if (isset($module_config['more_info'])) {
+        $output .= l(t('More information'), $module_config['more_info'], array('attributes' => array('class' => array('more-info'))));
+      }
+
+      // "Action" links
+      $output .= theme('module_toggler_module_links', array(
+        'group' => $group,
+        'module' => $module,
+        'module_config' => $module_config));
     }
   }
   return $output;
@@ -50,26 +60,33 @@ function theme_module_toggler_list($variables) {
  * @ingroup themeable
  */
 function theme_module_toggler_module_links($variables) {
+  $group = $variables['group'];
   $module = $variables['module'];
   $module_config = $variables['module_config'];
   $links = array();
   $module_t_params = array('%module' => $module_config['name']);
 
   if ($module_config['status']) {
-    $links = array(
-      array(
-        'title' => t('Disable'),
-        'href' => 'admin/modules/toggle/disable/' . $module . '/confirm',
-        'attributes' => array('title' => 'Disable %module', $module_t_params),
-      )
+    $links = array();
+    $links[] = array(
+      'title' => t('Disable'),
+      'href' => "admin/modules/toggle/$group/$module/disable/confirm",
+      'attributes' => array('title' => t('Disable %module', $module_t_params)),
     );
+    if (isset($module_config['configure'])) {
+      $links[] = array(
+        'title' => t('Configure'),
+        'href' => $module_config['configure'],
+        'attributes' => array('title' => t('Configure %module', $module_t_params)),
+      );
+    }
   }
   else {
     $links = array(
       array(
         'title' => t('Enable'),
-        'href' => 'admin/modules/toggle/enable/' . $module . '/confirm',
-        'attributes' => array('title' => 'Enable %module', $module_t_params),
+        'href' => "admin/modules/toggle/$group/$module/enable/confirm",
+        'attributes' => array('title' => t('Enable %module', $module_t_params)),
       )
     );
   }

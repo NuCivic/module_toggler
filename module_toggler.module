@@ -33,10 +33,10 @@ function module_toggler_menu() {
     'file' => 'module_toggler.admin.inc',
   );
 
-  $items['admin/modules/toggle/enable/%/confirm'] = array(
+  $items['admin/modules/toggle/%/%/%/confirm'] = array(
     'title' => 'Toggle Modules',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('module_toggler_enable_confirm'),
+    'page arguments' => array('module_toggler_confirm', 3, 4, 5),
     'access arguments' => array('use module toggler'),
     'file' => 'module_toggler.admin.inc',
   );
@@ -67,24 +67,50 @@ function module_toggler_theme($existing, $type, $theme, $path) {
  *   Array of groups and modules. See ()
  */
 function module_toggler_get_module_groups() {
-  $groups = module_invoke_all('module_toggler');
-  $list = system_rebuild_module_data();
-  $info_elements = array('name', 'description');
+  // Cache the results so we can use this function as needed w/o performance issues.
+  $groups = &drupal_static(__FUNCTION__);
+  if (!isset($groups)) {
+    $groups = module_invoke_all('module_toggler');
+    $list = system_rebuild_module_data();
+    $info_elements = array('name', 'description', 'configure');
 
-  foreach($groups as $group => $group_config) {
-    foreach ($group_config['modules'] as $module => $module_config) {
-      $module_info = $list[$module]->info;
-      foreach($info_elements as $info_element) {
-        if (!in_array($info_element, array_keys($module_config))) {
-          $groups[$group]['modules'][$module][$info_element] = $module_info[$info_element];
+    foreach($groups as $group => $group_config) {
+      foreach ($group_config['modules'] as $module => $module_config) {
+        $module_info = $list[$module]->info;
+        foreach($info_elements as $info_element) {
+          if (!in_array($info_element, array_keys($module_config))) {
+            $groups[$group]['modules'][$module][$info_element] = isset($module_info[$info_element]) ? $module_info[$info_element] : NULL;
+          }
         }
+        // Add module status element
+        $groups[$group]['modules'][$module]['status'] = $list[$module]->status;
       }
-      // Add module status element
-      $groups[$group]['modules'][$module]['status'] = $list[$module]->status;
     }
   }
-
   return $groups;
+}
+
+/**
+ * Check if $group and $module correspond to an actual group/module pair
+ * from the array returned by module_toggler_get_module_groups().
+ *
+ * @param $group
+ *   Machine name of the module group
+ *
+ * @param $module
+ *   Machine name of the module
+ *
+ * @return
+ *   Boolean value for whether valid group/module pair or not.
+ */
+function module_toggler_check_group_module($group, $module) {
+  $groups = module_toggler_get_module_groups();
+  if (isset($groups[$group]) && isset($groups[$group]['modules'][$module])) {
+    return TRUE;
+  }
+  else {
+    return FALSE;
+  }
 }
 
 /* vim: set filetype=php: */
