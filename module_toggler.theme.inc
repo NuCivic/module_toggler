@@ -62,7 +62,6 @@ function theme_module_toggler_module_links($variables) {
   $group = $variables['group'];
   $module = $variables['module'];
   $module_config = $variables['module_config'];
-  $links = array();
   $module_t_params = array('%module' => $module_config['name']);
 
   $output = '<div class="btn-group">';
@@ -95,8 +94,9 @@ function theme_module_toggler_module_links($variables) {
 
   // More info link
   if (isset($module_config['more_info'])) {
-    $output .= l(t('More information'), $module_config['more_info'], array(
+    $output .= l(t('Information'), $module_config['more_info'], array(
       'attributes' => array(
+        'title' => t('More information on %module', $module_t_params),
         'class' => array('btn', 'btn-default'),
         'target' => '_blank',
       ),
