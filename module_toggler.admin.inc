@@ -64,7 +64,7 @@ function module_toggler_confirm($form, &$form_state, $group, $module, $op = 'ena
     '%module' => $module_config['name'],
     '@op' => $op_name
   ));
-  $path = 'admin/modules/toggle';
+  $path = variable_get('module_toggler_path', 'admin/modules/toggle');
   $description = t('Description');
   $yes = t(ucwords($op));
   $no = t('Cancel');
@@ -125,4 +125,33 @@ function module_toggler_confirm_submit($form, &$form_state) {
     drupal_set_message(t('The %module module has been @op.', array('%module' => $module_config['name'], '@op' => $op_name)));
   }
   $form_state['redirect'] = 'admin/modules/toggle';
+}
+
+/**
+ * System settings for for Module Toggler
+ */
+function module_toggler_settings($form, &$form_state) {
+  $form = array();
+
+  $form['module_toggler_path'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Base path'),
+    '#default_value' => variable_get('module_toggler_path', 'admin/modules/toggle'),
+    '#description' => t('Path for the main Module Toggler page and the base for sub-paths.'),
+    '#required' => TRUE,
+  );
+
+  $form['module_toggler_page_title'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Module Toggler page title'),
+    '#default_value' => variable_get('module_toggler_page_title', t('Module Toggler')),
+    '#description' => t('Custom title for main Module Toggler page.'),
+    '#required' => TRUE,
+  );
+
+  return system_settings_form($form);
+}
+
+function module_toggler_settings_submit($form, &$form) {
+  menu_cache_clear_all();
 }

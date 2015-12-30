@@ -19,6 +19,10 @@ function module_toggler_permission() {
       'title' => t('Use Module Toggler'),
       'description' => t('Enable and disable modules exposed to Module Toggler. Use with caution.'),
     ),
+    'administer module toggler' =>  array(
+      'title' => t('Administer Module Toggler'),
+      'description' => t('Customize Module Toggler path, title and other settings'),
+    ),
   );
 }
 
@@ -26,18 +30,29 @@ function module_toggler_permission() {
  * Implements hook_menu().
  */
 function module_toggler_menu() {
-  $items['admin/modules/toggle'] = array(
-    'title' => 'Toggle Modules',
+  $menu_toggler_path = variable_get('menu_toggler_path', 'admin/modules/toggle');
+  $items = array();
+
+  $items[$menu_toggler_path] = array(
+    'title' => variable_get('module_toggler_page_title', 'Toggle Modules'),
     'page callback' => 'module_toggler_list_page',
     'access arguments' => array('use module toggler'),
     'file' => 'module_toggler.admin.inc',
   );
 
-  $items['admin/modules/toggle/%/%/%/confirm'] = array(
+  $items[$menu_toggler_path . '/%/%/%/confirm'] = array(
     'title' => 'Toggle Modules',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('module_toggler_confirm', 3, 4, 5),
     'access arguments' => array('use module toggler'),
+    'file' => 'module_toggler.admin.inc',
+  );
+
+  $items['admin/config/user-interface/module-toggler'] = array(
+    'title' => 'Module Toggler Settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('module_toggler_settings'),
+    'access arguments' => array('administer module toggler'),
     'file' => 'module_toggler.admin.inc',
   );
 

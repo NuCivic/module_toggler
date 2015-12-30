@@ -16,8 +16,8 @@ function theme_module_toggler_list($variables) {
   $output = '<div id="module-toggler-list">';
   foreach ($groups as $group => $group_config) {
     // Start new module group.
-    $output .= '<section class="module-toggler-list-'. $group .' clearfix">';
-    $output .= '<header><h2>' . t($group_config['name']) .'</h2>';
+    $output .= '<section class="panel panel-default module-toggler-list-'. $group .' clearfix">';
+    $output .= '<header class="panel-heading"><h2>' . t($group_config['name']) .'</h2>';
     $output .= t($group_config['description']) . '</header>';
 
     foreach($group_config['modules'] as $module => $module_config) {
@@ -39,8 +39,12 @@ function theme_module_toggler_list($variables) {
         'group' => $group,
         'module' => $module,
         'module_config' => $module_config));
+
+      $output .= '</article>';
     }
+    $output .= '</section>';
   }
+  $output .= '</div>';
   return $output;
 }
 
@@ -91,7 +95,12 @@ function theme_module_toggler_module_links($variables) {
 
   // More info link
   if (isset($module_config['more_info'])) {
-    $output .= l(t('More information'), $module_config['more_info'], array('attributes' => array('class' => array('btn', 'btn-default'))));
+    $output .= l(t('More information'), $module_config['more_info'], array(
+      'attributes' => array(
+        'class' => array('btn', 'btn-default'),
+        'target' => '_blank',
+      ),
+    ));
   }
 
 
