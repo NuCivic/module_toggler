@@ -91,14 +91,19 @@ function module_toggler_get_module_groups() {
 
     foreach($groups as $group => $group_config) {
       foreach ($group_config['modules'] as $module => $module_config) {
-        $module_info = $list[$module]->info;
-        foreach($info_elements as $info_element) {
-          if (!in_array($info_element, array_keys($module_config))) {
-            $groups[$group]['modules'][$module][$info_element] = isset($module_info[$info_element]) ? $module_info[$info_element] : NULL;
+        if (in_array($module, array_keys($list))) {
+          $module_info = $list[$module]->info;
+          foreach($info_elements as $info_element) {
+            if (!in_array($info_element, array_keys($module_config))) {
+              $groups[$group]['modules'][$module][$info_element] = isset($module_info[$info_element]) ? $module_info[$info_element] : NULL;
+            }
           }
+          // Add module status element
+          $groups[$group]['modules'][$module]['status'] = $list[$module]->status;
         }
-        // Add module status element
-        $groups[$group]['modules'][$module]['status'] = $list[$module]->status;
+        else {
+          $groups[$group]['modules'][$module]['status'] = -1;
+        }
       }
     }
   }

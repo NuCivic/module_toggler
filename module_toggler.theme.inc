@@ -12,17 +12,35 @@
  */
 function theme_module_toggler_list($variables) {
   $groups = $variables['module_groups'];
-
   $output = '<div id="module-toggler-list">';
   foreach ($groups as $group => $group_config) {
     // Start new module group.
     $output .= '<section class="panel panel-default module-toggler-list-'. $group .' clearfix">';
     $output .= '<header class="panel-heading"><h2>' . t($group_config['name']) .'</h2>';
-    $output .= t($group_config['description']) . '</header>';
+    if (isset($group_config['description'])) {
+      $output .= t($group_config['description']);
+    }
+    $output .= '</header>';
 
     foreach($group_config['modules'] as $module => $module_config) {
       // Start a new module
-      $enabled = $module_config['status'] ? 'enabled' : 'disabled';
+      switch ($module_config['status']) {
+        case 1:
+          $enabled = 'enabled';
+          $status_label = 'success';
+          $status_title = t('This component is enabled on your website.');
+          break;
+        case 0:
+          $enabled = 'disabled';
+          $status_label = 'default';
+          $status_title = t('This component is disabled but available on your website.');
+          break;
+        case -1:
+          $enabled = 'unavailable';
+          $status_label = 'danger';
+          $status_title = t('This component is not available on your website. Contact your system administrator for help.');
+          break;
+      }
       $output .= '<article class="module-toggler-module .' . $module . ' module-toggler-module- .' . $enabled . '">';
 
       // Theme the icon.
@@ -32,6 +50,13 @@ function theme_module_toggler_list($variables) {
 
       // Module name and description
       $output .= '<header><h3>' . $module_config['name'] . '</h3></header>';
+
+      // Status label
+      $output .= '<ul class="module-metadata">';
+      $output .= '<li class="module-status status-' . $enabled .'">';
+      $output .= '<span title="' . $status_title . '" class="label label-' . $status_label . '">';
+      $output .= $enabled . '</span></li></ul>';
+
       $output .= '<p>' . $module_config['description'] . '</p>';
 
       // "Action" links
@@ -66,30 +91,37 @@ function theme_module_toggler_module_links($variables) {
 
   $output = '<div class="btn-group">';
 
-  if ($module_config['status']) {
-    $output .= l(t('Disable'), "admin/modules/toggle/$group/$module/disable/confirm", array(
-      'attributes' => array(
-        'title' => t('Disable %module', $module_t_params),
-        'class' => array('btn', 'btn-primary'),
-      ),
-    ));
-
-    if (isset($module_config['configure'])) {
-      $output .= l(t('Configure'), $module_config['configure'], array(
+  switch ($module_config['status']) {
+    case 1:
+      $output .= l(t('Disable'), "admin/modules/toggle/$group/$module/disable/confirm", array(
         'attributes' => array(
-          'title' => t('Configure %module', $module_t_params),
-          'class' => array('btn', 'btn-default'),
+          'title' => t('Disable %module', $module_t_params),
+          'class' => array('btn', 'btn-primary'),
         ),
       ));
-    }
-  }
-  else {
-    $output .= l(t('Enable'), "admin/modules/toggle/$group/$module/enable/confirm", array(
-      'attributes' => array(
-        'title' => t('Enable %module', $module_t_params),
-        'class' => array('btn', 'btn-primary'),
-      ),
-    ));
+
+      if (isset($module_config['configure'])) {
+        $output .= l(t('Configure'), $module_config['configure'], array(
+          'attributes' => array(
+            'title' => t('Configure %module', $module_t_params),
+            'class' => array('btn', 'btn-default'),
+          ),
+        ));
+      }
+      break;
+
+    case 0:
+      $output .= l(t('Enable'), "admin/modules/toggle/$group/$module/enable/confirm", array(
+        'attributes' => array(
+          'title' => t('Enable %module', $module_t_params),
+          'class' => array('btn', 'btn-primary'),
+        ),
+      ));
+      break;
+
+    case -1:
+      $output .= '<span class="btn btn-danger">' . t('Enable') . '</span>';
+      break;
   }
 
   // More info link
